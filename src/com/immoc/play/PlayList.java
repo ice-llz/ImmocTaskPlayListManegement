@@ -131,22 +131,18 @@ public class PlayList implements Serializable {
 
         try {
             FileOutputStream fos = new FileOutputStream(Filename);
-            ObjectOutputStream oos = new ObjectOutputStream(fos);
-            for (Song song : this.getMusicList()) {
-                oos.writeObject(song);
-            }     //这一步出bug了，希望其他同学能够解决
-
             FileInputStream fis = new FileInputStream(Filename);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
             ObjectInputStream ois = new ObjectInputStream(fis);
-            Song song;
-            Boolean flag = false;
-            while (!flag) {
-                song = (Song) ois.readObject();
-                System.out.println(song);
-                if (song == null) {
-                    flag = true;
-                }
-            }
+
+            for (Song song : musicList) {
+                oos.writeObject(song);Song ss = (Song) ois.readObject();
+                System.out.println(ss);
+            }   //这一步出bug了，希望其他同学能够解决
+                //一小时后更新，已解决　current time = 11:39
+
+
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
