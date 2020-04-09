@@ -1,11 +1,12 @@
 package com.immoc.play;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PlayList {
-    private String playListName;
-    private List<Song> musicList = new ArrayList<Song>();
+public class PlayList implements Serializable {
+    public String playListName;
+    public List<Song> musicList = new ArrayList<Song>();
 
     public PlayList(String playListName) {
         this.playListName = playListName;
@@ -62,6 +63,7 @@ public class PlayList {
 
     /**
      * 通过id或者名称查询歌曲
+     *
      * @param id, name
      */
 
@@ -85,34 +87,72 @@ public class PlayList {
 
     /**
      * 修改播放列表中的歌曲信息
-     * @param id 要修改的歌曲id
+     *
+     * @param id   要修改的歌曲id
      * @param song 要存放的新的歌曲
      */
 
-    public void updateMusic(String id, Song song){
+    public void updateMusic(String id, Song song) {
         Song s = searchMusicByID(id);
-        if(s==null){
+        if (s == null) {
             System.out.println("没有此歌曲");
-        }else{
+        } else {
             musicList.remove(s);
             musicList.add(song);
-            System.out.println("修改成功,新的歌曲信息为\n "+song);
+            System.out.println("修改成功,新的歌曲信息为\n " + song);
         }
     }
 
     /**
      * 删除播放列表中指定歌曲
+     *
      * @param id 要删除的歌曲id
      */
 
-    public void deleteMusic(String id){
-        Song s =searchMusicByID(id);
-        if(s==null){
+    public void deleteMusic(String id) {
+        Song s = searchMusicByID(id);
+        if (s == null) {
             System.out.println("没有此歌曲");
-        }else{
+        } else {
             musicList.remove(s);
         }
         System.out.println("删除成功");
         disPlayAllSong();
+    }
+
+    public void exportMusic() {
+        String Filename = this.getPlayListName() + ".txt";
+        File file = new File(Filename);
+        try {
+            file.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            FileOutputStream fos = new FileOutputStream(Filename);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            for (Song song : this.getMusicList()) {
+                oos.writeObject(song);
+            }     //这一步出bug了，希望其他同学能够解决
+
+            FileInputStream fis = new FileInputStream(Filename);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            Song song;
+            Boolean flag = false;
+            while (!flag) {
+                song = (Song) ois.readObject();
+                System.out.println(song);
+                if (song == null) {
+                    flag = true;
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }

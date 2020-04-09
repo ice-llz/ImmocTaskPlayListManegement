@@ -1,60 +1,9 @@
 package com.immoc.play;
 
+import java.io.*;
 import java.util.Scanner;
 
 public class Main {
-    Song song1 = new Song("想象之中", "S001", "vae");
-    Song song2 = new Song("青花瓷", "S002", "Jay chou");
-    Song song3 = new Song("Awake", "S003", "Talor Swift");
-
-    /**
-     * 测试Song类
-     */
-    public void testSong() {
-        System.out.println(song1);
-        System.out.println("song1与song2是否相等？   " + song1.equals(song3));
-    }
-
-    /**
-     * 测试PlayList类
-     */
-    public void testPlayList() {
-        PlayList pl1 = new PlayList("主播放列表");
-        pl1.addPlayList(song1);
-        pl1.addPlayList(song2);
-        pl1.addPlayList(song3);
-        pl1.disPlayAllSong();
-        System.out.println("\n根据ID查询的歌曲信息为");
-        System.out.println(pl1.searchMusicByID("S002"));
-
-        Song song4 = new Song("如果爱可以重来", "S004", "LLZ");
-
-        pl1.updateMusic("S003", song4);
-        pl1.deleteMusic("S001");
-    }
-
-    /**
-     * 测试PlayListCollection类
-     */
-    public void testPlayListCollection() {
-        //主列表
-        PlayList mainPlayList = new PlayList("Main Play List");
-        mainPlayList.addPlayList(song1);
-        mainPlayList.addPlayList(song2);
-        mainPlayList.addPlayList(song3);
-
-        //我最喜爱的列表
-        PlayList favourite = new PlayList("My Favourite");
-        favourite.addPlayList(mainPlayList.getMusicList().get(0));
-        favourite.addPlayList(mainPlayList.getMusicList().get(1));
-        favourite.disPlayAllSong();
-
-        PlayListCollection plc = new PlayListCollection();
-        plc.addPlayList(mainPlayList);
-        plc.addPlayList(favourite);
-        plc.displayAllPlayList();
-        plc.searchPlayList("My Favourite").disPlayAllSong();
-    }
 
     //主菜单
     public void mainMenu() {
@@ -75,6 +24,7 @@ public class Main {
         System.out.println("5- 修改播放列表中的歌曲");
         System.out.println("6- 删除播放列表的歌曲");
         System.out.println("7- 显示播放列表里的所有歌曲");
+        System.out.println("8- 导出歌单信息");
         System.out.println("0- 返回主菜单");
         System.out.println("播放列表管理***********************");
     }
@@ -99,6 +49,7 @@ public class Main {
         plc.addPlayList(mainPlayList);
 
         PlayList playList2 = null;
+        //备用列表，想以ArrayList存储。因此用户可以自由添加列表
         PlayList playList3 = null;
         PlayList playList4 = null;
 
@@ -132,7 +83,6 @@ public class Main {
                                     mainPlayList.addPlayList(song);
                                     mainPlayList.disPlayAllSong();
                                 }
-
                                 break;
 
                             case 2:
@@ -172,7 +122,7 @@ public class Main {
                                     if (song == null) {
                                         System.out.println("没有这首歌曲呢");
                                     } else {
-                                        System.out.println("添加成功   " + song);
+                                        System.out.println("找到了   " + song);
                                     }
                                 }
                                 break;
@@ -191,23 +141,65 @@ public class Main {
                                     if (song == null) {
                                         System.out.println("没有这首歌曲呢");
                                     } else {
-                                        System.out.println("添加成功　" + song);
+                                        System.out.println("找到了　" + song);
                                     }
                                 }
                                 break;
 
                             case 5:
                                 System.out.println("5- 修改播放列表中的歌曲");
+                                System.out.println("您要修改的列表名称是______ 歌曲id是______？");
+                                String strListName = sc.next();
+                                String strId = sc.next();
+                                if (plc.searchPlayList(strListName) == null) {
+                                    System.out.println("没有此列表");
+                                } else {
+                                    if (plc.searchPlayList(strListName).searchMusicByID(strId) == null) {
+                                        System.out.println("该列表没有此歌曲");
+                                    } else {
+                                        System.out.println("请输入修改后的歌曲信息,依次为名称，id和歌手");
+                                        Song song = new Song(sc.next(), sc.next(), sc.next());
+                                        plc.searchPlayList(strListName).updateMusic(strId, song);
+                                    }
+                                }
                                 break;
 
                             case 6:
                                 System.out.println("6- 删除播放列表的歌曲");
+                                System.out.println("您要删除的播放列表名称是______ 歌曲id是______？");
+                                String strListName1 = sc.next();
+                                String strId1 = sc.next();
+                                if (plc.searchPlayList(strListName1) == null) {
+                                    System.out.println("没有此列表");
+                                } else {
+                                    if (plc.searchPlayList(strListName1).searchMusicByID(strId1) == null) {
+                                        System.out.println("该列表没有此歌曲");
+                                    } else {
+                                        plc.searchPlayList(strListName1).deleteMusic(strId1);
+                                    }
+                                }
                                 break;
 
                             case 7:
                                 System.out.println("7- 显示播放列表里的所有歌曲");
+                                System.out.println("您要显示的播放列表名称是?");
+                                String strListName2 = sc.next();
+                                if (plc.searchPlayList(strListName2) == null) {
+                                    System.out.println("没有此列表");
+                                } else {
+                                    plc.searchPlayList(strListName2).disPlayAllSong();
+                                }
                                 break;
 
+                            case 8:
+                                System.out.println(("8- 导出歌单信息"));
+                                System.out.println("您要导出的歌单名称是?");
+                                String strListName3 = sc.next();
+                                if (plc.searchPlayList(strListName3) == null) {
+                                    System.out.println("没有此歌单");
+                                } else {
+                                    plc.searchPlayList(strListName3).exportMusic();
+                                }
                             default:
                                 System.out.println("请输入对应的数字进行操作");
                                 break;
@@ -215,6 +207,8 @@ public class Main {
                     }
                     break;
 
+
+                //主界面的选择２
                 case 2:
                     while (true) {
                         playerMenu();
